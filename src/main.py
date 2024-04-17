@@ -51,13 +51,10 @@ class TypeMode():
         while int_char > 0:
             if int_char >= 32 and int_char <= 125:
                 input_char = chr(int_char)
-                if self._text_lines[self._current_line].update(input_char):
-                #if self._text_lines[self._current_line].input_char(input_char):
-                    self._set_active_line(self._current_line + 1)
+                self._text_lines[self._current_line].update(input_char)
             int_char = pr.get_char_pressed()
 
         if pr.is_key_pressed(pr.KeyboardKey.KEY_BACKSPACE):
-            #self._text_lines[self._current_line].backspace()
             self._text_lines[self._current_line].update("", is_backspace=True)
 
     def draw(self) -> None:
@@ -94,29 +91,13 @@ class TypeMode():
 class TextLine:
     def __init__(self, word_list: WordList, max_length: int) -> None:
         self._word_list: WordList = word_list
-        self._max_length: int = max_length
-        self._current_char: int = 0
-        self.is_active: bool = False
-        self._text: str = self._word_list.get_random_word()
-        word = self._word_list.get_random_word()
-        while len(self._text) + len(word) <= self._max_length:
-            self._text = f"{self._text} {word}"
-            word = self._word_list.get_random_word()
-        self._text: str = f"{self._text} "
-        self._text_len: int = len(self._text)
-        self._characters: List[str] = list(self._text)
-        self._typed_characters: List[str] = []
-        self._typed_characters_history: List[str] = []
-
-        self._cursor_position: int = 0
-        self._entered: List[str] = []
-        self._matched_characters = []
 
         self.first_word = self._word_list.get_random_word2()
         self.first_word.is_current = True
         cur_word = self.first_word
         for i in range(3):
             w = self._word_list.get_random_word2()
+            w._previous = cur_word
             cur_word._next = w
             cur_word = w
         self.active_word = self.first_word
@@ -126,15 +107,14 @@ class TextLine:
 
     def draw(self, y_offset: int):
         # centering text so need to calculate how wide the text line will be
-        text_width: int = pr.measure_text(self._text, FONT_SIZE)
-        text_start_pos = (WIN_WIDTH - text_width) // 2
-        x_offset = text_start_pos
+        #text_width: int = pr.measure_text(self._text, FONT_SIZE)
+        #text_start_pos = (WIN_WIDTH - text_width) // 2
+        #x_offset = text_start_pos
 
         curr = self.first_word
         x_offset = 20
-        y = 400
         while True:
-            curr.draw(x_offset, y)
+            curr.draw(x_offset, y_offset)
             x_offset += pr.measure_text(curr.get_text(), FONT_SIZE)
             curr = curr.get_next()
             if curr is None:

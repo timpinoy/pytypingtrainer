@@ -5,6 +5,8 @@ from settings import *
 class Word:
     def __init__(self, text: str, previous: Word=None, next: Word=None) -> None:
         self.is_current: bool = False
+        self._past_word: bool = False
+        self._has_been_active: bool = False
         self._text: str = text
         self._characters: List[str] = list(self._text)
         self._len: int = len(text)
@@ -18,16 +20,19 @@ class Word:
     def update(self, input: str, is_backspace: bool=False) -> Word:
         if not self.is_current:
             return
+        self._has_been_active = True
         if is_backspace:
             if self._previous is not None and len(self._entered_history) == 0:
                 self.is_current = False
                 self._previous.is_current = True
+                self._previous._past_word = False
                 return self._previous
             if len(self._entered_history) != 0:
                 self._entered_history.pop()
                 self._update_draw_list()
-            return self
+                return self
         if input == " ":
+            self._past_word = True
             if not self._next is None:
                 self._next.is_current = True
                 self.is_current = False
@@ -54,7 +59,10 @@ class Word:
                 self._draw_list.append((self._entered_history[i], False))
             i += 1
         while i < len(self._characters):
-            self._draw_list.append((self._characters[i], None))
+            if self._past_word:
+                self._draw_list.append((self._characters[i], False))
+            else:
+                self._draw_list.append((self._characters[i], None))
             i += 1
                 
     def draw(self, x: int, y: int) -> None:
