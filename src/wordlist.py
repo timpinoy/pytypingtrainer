@@ -4,7 +4,7 @@ import random
 from word import *
 
 class WordList():
-    def __init__(self, filepath: str):
+    def __init__(self, filepath):
         with open(filepath) as file:
             file_content = file.read()
 
@@ -12,10 +12,7 @@ class WordList():
         self._words = parsed_json["words"]
         self._num_words = len(self._words)
 
-    def get_random_word(self) -> str:
-        return self._words[random.randrange(0, self._num_words)]
-
-    def get_random_word2(self) -> Word:
+    def get_random_word(self) -> Word:
         return Word(self._words[random.randrange(0, self._num_words)])  
 
     def get_word_line(self, max_characters: int) -> str:
