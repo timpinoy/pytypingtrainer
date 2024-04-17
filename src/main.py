@@ -2,9 +2,9 @@ import pyray as pr
 import math
 import os
 
-from typing import List
 from settings import *
 from wordlist import WordList
+from typing import List
 
 
 class App:
@@ -111,94 +111,38 @@ class TextLine:
         self._cursor_position: int = 0
         self._entered: List[str] = []
         self._matched_characters = []
+
+        self.first_word = self._word_list.get_random_word2()
+        self.first_word.is_current = True
+        cur_word = self.first_word
+        for i in range(3):
+            w = self._word_list.get_random_word2()
+            cur_word._next = w
+            cur_word = w
+        self.active_word = self.first_word
     
     def update(self, input_char, is_backspace: bool = False) -> None:
-        if is_backspace:
-            self._entered.pop()
-        else:
-            self._entered.append(input_char)
-        self._cursor_position = 0
-        self._matched_characters = []
-
-        for c in self._entered:
-            if c == " ":
-                for i in range(self._cursor_position, len(self._characters)):
-                    if self._characters[i] == " ":
-                        break
-                    else:
-                        self._matched_characters.append((self._characters[i], False, False))
-                        self._cursor_position += 1
-                self._cursor_position += 1
-                self._matched_characters.append((" ", True, True))
-            elif c == self._characters[self._cursor_position]:
-                self._matched_characters.append((c, True, True))
-                self._cursor_position += 1
-        
-        if self._cursor_position >= self._text_len:
-            return True
-        return False
+        self.active_word = self.active_word.update(input_char, is_backspace)
 
     def draw(self, y_offset: int):
         # centering text so need to calculate how wide the text line will be
         text_width: int = pr.measure_text(self._text, FONT_SIZE)
         text_start_pos = (WIN_WIDTH - text_width) // 2
         x_offset = text_start_pos
-        pr.draw_text(self._text, x_offset, y_offset + 30, FONT_SIZE, FONT_COLOR)
 
-        for i in range(self._text_len):
-            current_char_width = pr.measure_text(self._characters[i], FONT_SIZE)
-            if i == self._cursor_position and self.is_active:
-                pr.draw_rectangle(x_offset, y_offset, current_char_width, FONT_SIZE, pr.PINK)
-
-            pr.draw_text(self._characters[i],
-                        x_offset,
-                        y_offset,
-                        FONT_SIZE,
-                        FONT_COLOR)
-
-            x_offset += current_char_width + CHAR_SPACING
-
-        # matching chars
-        x_offset = text_start_pos
-        for i in range(len(self._entered)):
-            current_char_width = pr.measure_text(self._entered[i], FONT_SIZE)
-            pr.draw_text(self._entered[i],
-                        x_offset,
-                        y_offset + 60,
-                        FONT_SIZE,
-                        FONT_COLOR)
-            x_offset += current_char_width + CHAR_SPACING
-
-        # entered matching chars
-        x_offset = text_start_pos
-        for i in range(len(self._matched_characters)):
-            current_char_width = pr.measure_text(self._matched_characters[i][0], FONT_SIZE)
-            color = FONT_COLOR
-            if self._matched_characters[i][1] == False:
-                color = pr.RED
-            pr.draw_text(self._matched_characters[i][0],
-                        x_offset,
-                        y_offset + 90,
-                        FONT_SIZE,
-                        color)
-            x_offset += current_char_width + CHAR_SPACING
+        curr = self.first_word
+        x_offset = 20
+        y = 400
+        while True:
+            curr.draw(x_offset, y)
+            x_offset += pr.measure_text(curr.get_text(), FONT_SIZE)
+            curr = curr.get_next()
+            if curr is None:
+                break
+            x_offset += pr.measure_text(" ", FONT_SIZE) + CHAR_SPACING * 2
 
     def get_text(self) -> str:
         return self._text
-
-    def input_char(self, char: str) -> bool:
-        self._typed_characters.append(char)
-        print(char)
-        #self._characters[self._current_char] = char
-        self._current_char += 1
-        if self._current_char == self._text_len:
-            self._current_char = self._text_len - 1
-            return True
-        return False
-
-    def backspace(self) -> None:
-        if len(self._typed_characters) > 0:
-            self._typed_characters.pop()
 
 
 if __name__ == "__main__":

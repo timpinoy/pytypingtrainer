@@ -1,6 +1,7 @@
 import json
 import os
 import random
+from word import *
 
 class WordList():
     def __init__(self, filepath: str):
@@ -13,6 +14,9 @@ class WordList():
 
     def get_random_word(self) -> str:
         return self._words[random.randrange(0, self._num_words)]
+
+    def get_random_word2(self) -> Word:
+        return Word(self._words[random.randrange(0, self._num_words)])  
 
     def get_word_line(self, max_characters: int) -> str:
         line = self.get_random_word()

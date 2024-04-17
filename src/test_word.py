@@ -24,6 +24,16 @@ class TestWord(unittest.TestCase):
         self.assertEqual(w.is_current, True)
         self.assertEqual(r, w)
 
+    def test_update_history(self):
+        w = Word("word")
+        w.is_current = True
+        w.update("f")
+        w.update("o")
+        w.update("o")
+        r = w.update("", is_backspace=True)
+        self.assertEqual(w._entered_history, ["f", "o"])
+        self.assertEqual(w._full_entered_history, ["f", "o", "o"])
+
     def test_update_space1(self):
         n = Word("next")
         w = Word("word", None, next=n)
@@ -39,6 +49,18 @@ class TestWord(unittest.TestCase):
         r = w.update(" ")
         self.assertEqual(w.is_current, True)
         self.assertEqual(r, w)
+
+    def test_update_max_entries(self):
+        w = Word("x")
+        w.is_current = True
+        w.update("a")
+        w.update("a")
+        w.update("a")
+        w.update("a")
+        w.update("a")
+        w.update("a")
+        self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._entered_history)
+        self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._full_entered_history)
 
 
 if __name__ == "__main__":
