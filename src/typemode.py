@@ -30,7 +30,7 @@ class TypeMode():
         x_offset = 20
         while True:
             curr.draw(x_offset, 200)
-            x_offset += pr.measure_text(curr.get_text(), FONT_SIZE)
+            x_offset += pr.measure_text(curr.get_draw_text(), FONT_SIZE)
             curr = curr.get_next()
             if curr is None:
                 break

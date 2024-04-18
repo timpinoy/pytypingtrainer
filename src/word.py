@@ -90,3 +90,9 @@ class Word:
 
     def get_text(self) -> str:
         return self._text
+
+    def get_draw_text(self) -> str:
+        s = ""
+        for i in self._draw_list:
+            s = s + i[0]
+        return s
