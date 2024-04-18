@@ -15,6 +15,7 @@ class Word:
         self._entered_history: List[str] = []
         self._full_entered_history: List[str] = []
         self._draw_list = []
+        self.is_accurate = False
         self._update_draw_list()
 
     def update(self, input: str, is_backspace: bool=False) -> Word:
@@ -33,6 +34,7 @@ class Word:
                 return self
         if input == " ":
             self._past_word = True
+            self._validate()
             if not self._next is None:
                 self._next.is_current = True
                 self.is_current = False
@@ -46,7 +48,6 @@ class Word:
         return self
 
     def _update_draw_list(self) -> None:
-        pass
         i: int = 0
         self._draw_list = []
         while i < len(self._entered_history):
@@ -81,6 +82,14 @@ class Word:
                         FONT_SIZE,
                         color)
             x_offset += current_char_width + CHAR_SPACING
+
+    def _validate(self) -> None:
+        self.is_accurate = False
+        if len(self._entered_history) == self._len:
+            for i in range(self._len):
+                if self._characters[i] != self._entered_history[i]:
+                    return
+            self.is_accurate = True
 
     def get_next(self) -> Word:
         return self._next

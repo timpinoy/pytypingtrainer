@@ -1,6 +1,5 @@
 import pyray as pr
 import math
-import os
 
 from settings import *
 from typing import List

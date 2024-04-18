@@ -62,6 +62,30 @@ class TestWord(unittest.TestCase):
         self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._entered_history)
         self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._full_entered_history)
 
+    def test_validate_true(self):
+        w = Word("abc")
+        w._entered_history = ["a", "b", "c"]
+        w._validate()
+        self.assertEqual(True, w.is_accurate)
+
+    def test_validate_false1(self):
+        w = Word("abc")
+        w._entered_history = ["a", "b"]
+        w._validate()
+        self.assertEqual(False, w.is_accurate)
+
+    def test_validate_false2(self):
+        w = Word("abc")
+        w._entered_history = ["a", "b", "c", "x"]
+        w._validate()
+        self.assertEqual(False, w.is_accurate)
+
+    def test_validate_false3(self):
+        w = Word("abc")
+        w._entered_history = ["a", "s", "c"]
+        w._validate()
+        self.assertEqual(False, w.is_accurate)
+
 
 if __name__ == "__main__":
     unittest.main()
