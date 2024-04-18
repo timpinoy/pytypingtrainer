@@ -24,6 +24,8 @@ class Word:
         self._has_been_active = True
         if is_backspace:
             if self._previous is not None and len(self._entered_history) == 0:
+                if self._previous.is_accurate:
+                    return self
                 self.is_current = False
                 self._previous.is_current = True
                 self._previous._past_word = False
@@ -71,6 +73,10 @@ class Word:
         i = 0
         for i in range(len(self._draw_list)):
             current_char_width = pr.measure_text(self._draw_list[i][0], FONT_SIZE)
+            # draw cursor
+            if self.is_current:
+                if i == len(self._entered_history):
+                    pr.draw_rectangle(x_offset, y, current_char_width, 30, pr.PINK)
             color = FONT_COLOR
             if self._draw_list[i][1] is not None and not self._draw_list[i][1]:
                 color = pr.RED
@@ -82,6 +88,10 @@ class Word:
                         FONT_SIZE,
                         color)
             x_offset += current_char_width + CHAR_SPACING
+        # draw cursor for space
+        if self.is_current:
+            if len(self._entered_history) >= self._len:
+                pr.draw_rectangle(x_offset, y, 10, 30, pr.PINK)
 
     def _validate(self) -> None:
         self.is_accurate = False
