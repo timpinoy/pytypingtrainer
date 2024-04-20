@@ -1,16 +1,24 @@
 import os
+import math
 from word import Word
 from wordlist import WordList
 from settings import *
 
 class TypeMode():
-    def __init__(self) -> None:
+    def __init__(self, time: int) -> None:
         self._word_list: WordList = self._load_word_list()
         self._first_word: Word = Word("")
         self._active_word: Word = self._first_word
+        self.round_time: float = time
+        self.remaining_time: float = self.round_time
         self.reset()
 
     def update(self) -> None:
+        self.delta_time = pr.get_frame_time()
+        self.remaining_time -= self.delta_time
+        if self.remaining_time < 0:
+           self.remaining_time = self.round_time 
+
         int_char = pr.get_char_pressed()
         while int_char > 0:
             if int_char >= 32 and int_char <= 125:
@@ -22,6 +30,7 @@ class TypeMode():
             self._active_word = self._active_word.update("", is_backspace=True)
 
     def draw(self) -> None:
+        pr.draw_text(f"{math.ceil(self.remaining_time)}", 20, 80, FONT_SIZE, FONT_COLOR)
         # centering text so need to calculate how wide the text line will be
         #text_width: int = pr.measure_text(self._text, FONT_SIZE)
         #text_start_pos = (WIN_WIDTH - text_width) // 2
