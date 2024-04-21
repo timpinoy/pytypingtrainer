@@ -9,7 +9,7 @@ class WordList():
 
         parsed_json = json.loads(file_content)
         self._words = parsed_json["words"]
-        self._num_words = len(self._words)
+        self._num_words: int = len(self._words)
 
     def get_random_word(self) -> str:
         return self._words[random.randrange(0, self._num_words)]

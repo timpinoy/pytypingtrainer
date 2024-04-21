@@ -3,6 +3,7 @@ from settings import *
 from typing import List
 from menumode import MenuMode
 from typemode import TypeMode
+from resultmode import ResultMode
 
 class App:
     def __init__(self) -> None:
@@ -15,6 +16,9 @@ class App:
         if isinstance(self._current_mode, MenuMode):
             if self._current_mode.start_typing:
                 self._current_mode = TypeMode(self._current_mode.get_selected_time())
+        elif isinstance(self._current_mode, TypeMode):
+            if self._current_mode.is_time_up:
+                self._current_mode = ResultMode()
    
     def draw(self) -> None:
         pr.begin_drawing()

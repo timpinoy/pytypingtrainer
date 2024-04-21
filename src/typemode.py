@@ -7,6 +7,7 @@ from settings import *
 
 class TypeMode():
     def __init__(self, time: int) -> None:
+        self.is_time_up: bool = False
         self.words: List[Word] = []
         self._word_list: WordList = self._load_word_list()
         self._active_word: Word = None
@@ -15,20 +16,22 @@ class TypeMode():
         self.reset()
 
     def update(self) -> None:
-        self.delta_time = pr.get_frame_time()
-        self.remaining_time -= self.delta_time
-        if self.remaining_time < 0:
-           self.remaining_time = self.round_time 
+        if not self.is_time_up:
+            self.delta_time = pr.get_frame_time()
+            self.remaining_time -= self.delta_time
+            if self.remaining_time < 0:
+            #self.remaining_time = self.round_time 
+                self.is_time_up = True
 
-        int_char = pr.get_char_pressed()
-        while int_char > 0:
-            if int_char >= 32 and int_char <= 125:
-                input_char = chr(int_char)
-                self._active_word = self._active_word.update(input_char)
             int_char = pr.get_char_pressed()
+            while int_char > 0:
+                if int_char >= 32 and int_char <= 125:
+                    input_char = chr(int_char)
+                    self._active_word = self._active_word.update(input_char)
+                int_char = pr.get_char_pressed()
 
-        if pr.is_key_pressed(pr.KeyboardKey.KEY_BACKSPACE):
-            self._active_word = self._active_word.update("", is_backspace=True)
+            if pr.is_key_pressed(pr.KeyboardKey.KEY_BACKSPACE):
+                self._active_word = self._active_word.update("", is_backspace=True)
 
     def draw(self) -> None:
         pr.draw_text(f"{math.ceil(self.remaining_time)}", 20, 80, FONT_SIZE, FONT_COLOR)
@@ -41,7 +44,7 @@ class TypeMode():
         while True:
             curr.draw(x_offset, 200)
             x_offset += pr.measure_text(curr.get_draw_text(), FONT_SIZE)
-            curr = curr.get_next()
+            curr = curr.next
             if curr is None:
                 break
             x_offset += pr.measure_text(" ", FONT_SIZE) + CHAR_SPACING * 2

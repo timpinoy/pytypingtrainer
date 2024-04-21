@@ -5,10 +5,11 @@ from settings import *
 class Word:
     def __init__(self, text: str, order: int=None, previous: Word=None, next: Word=None) -> None:
         self.is_current: bool = False
+        self.is_accurate = False
         self.order = order
         self.previous: Word = previous
         self.next: Word = next
-        self._past_word: bool = False
+        self._is_past_word: bool = False
         self._has_been_active: bool = False
         self._text: str = text
         self._characters: List[str] = list(self._text)
@@ -16,7 +17,6 @@ class Word:
         self._entered_history: List[str] = []
         self._full_entered_history: List[str] = []
         self._draw_list = []
-        self.is_accurate = False
         self._update_draw_list()
 
     def update(self, input: str, is_backspace: bool=False) -> Word:
@@ -29,14 +29,14 @@ class Word:
                     return self
                 self.is_current = False
                 self.previous.is_current = True
-                self.previous._past_word = False
+                self.previous._is_past_word = False
                 return self.previous
             if len(self._entered_history) != 0:
                 self._entered_history.pop()
                 self._update_draw_list()
                 return self
         if input == " ":
-            self._past_word = True
+            self._is_past_word = True
             self._validate()
             if not self.next is None:
                 self.next.is_current = True
@@ -63,7 +63,7 @@ class Word:
                 self._draw_list.append((self._entered_history[i], False))
             i += 1
         while i < len(self._characters):
-            if self._past_word:
+            if self._is_past_word:
                 self._draw_list.append((self._characters[i], False))
             else:
                 self._draw_list.append((self._characters[i], None))
@@ -101,12 +101,6 @@ class Word:
                 if self._characters[i] != self._entered_history[i]:
                     return
             self.is_accurate = True
-
-    def get_next(self) -> Word:
-        return self.next
-    
-    def get_previous(self) -> Word:
-        return self.previous
 
     def get_text(self) -> str:
         return self._text
