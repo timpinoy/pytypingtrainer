@@ -1,14 +1,15 @@
 import os
 import math
+from typing import List
 from word import Word
 from wordlist import WordList
 from settings import *
 
 class TypeMode():
     def __init__(self, time: int) -> None:
+        self.words: List[Word] = []
         self._word_list: WordList = self._load_word_list()
-        self._first_word: Word = Word("")
-        self._active_word: Word = self._first_word
+        self._active_word: Word = None
         self.round_time: float = time
         self.remaining_time: float = self.round_time
         self.reset()
@@ -35,7 +36,7 @@ class TypeMode():
         #text_width: int = pr.measure_text(self._text, FONT_SIZE)
         #text_start_pos = (WIN_WIDTH - text_width) // 2
         #x_offset = text_start_pos
-        curr = self._first_word
+        curr = self._active_word
         x_offset = 20
         while True:
             curr.draw(x_offset, 200)
@@ -54,12 +55,14 @@ class TypeMode():
         return WordList(filepath)
     
     def reset(self) -> None:
-        self._first_word = self._word_list.get_random_word()
-        self._first_word.is_current = True
-        cur_word = self._first_word
-        for i in range(3):
-            w = self._word_list.get_random_word()
-            w._previous = cur_word
-            cur_word._next = w
-            cur_word = w
-        self._active_word = self._first_word
+        self.words = []
+        for i in range(400):
+            if i == 0:
+                self.words.append(Word(self._word_list.get_random_word(), i))
+                self.words[0].is_current = True
+            else:
+                self.words.append(Word(self._word_list.get_random_word(), 
+                                       i,
+                                       self.words[i-1]))
+                self.words[i-1].next = self.words[i]
+        self._active_word = self.words[0]

@@ -3,15 +3,16 @@ from typing import List
 from settings import *
 
 class Word:
-    def __init__(self, text: str, previous: Word=None, next: Word=None) -> None:
+    def __init__(self, text: str, order: int=None, previous: Word=None, next: Word=None) -> None:
         self.is_current: bool = False
+        self.order = order
+        self.previous: Word = previous
+        self.next: Word = next
         self._past_word: bool = False
         self._has_been_active: bool = False
         self._text: str = text
         self._characters: List[str] = list(self._text)
         self._len: int = len(text)
-        self._previous: Word = previous
-        self._next: Word = next
         self._entered_history: List[str] = []
         self._full_entered_history: List[str] = []
         self._draw_list = []
@@ -23,13 +24,13 @@ class Word:
             return
         self._has_been_active = True
         if is_backspace:
-            if self._previous is not None and len(self._entered_history) == 0:
-                if self._previous.is_accurate:
+            if self.previous is not None and len(self._entered_history) == 0:
+                if self.previous.is_accurate:
                     return self
                 self.is_current = False
-                self._previous.is_current = True
-                self._previous._past_word = False
-                return self._previous
+                self.previous.is_current = True
+                self.previous._past_word = False
+                return self.previous
             if len(self._entered_history) != 0:
                 self._entered_history.pop()
                 self._update_draw_list()
@@ -37,11 +38,11 @@ class Word:
         if input == " ":
             self._past_word = True
             self._validate()
-            if not self._next is None:
-                self._next.is_current = True
+            if not self.next is None:
+                self.next.is_current = True
                 self.is_current = False
                 self._update_draw_list()
-                return self._next
+                return self.next
             return self
         if len(self._entered_history) < self._len + 4:
             self._entered_history.append(input)
@@ -102,10 +103,10 @@ class Word:
             self.is_accurate = True
 
     def get_next(self) -> Word:
-        return self._next
+        return self.next
     
     def get_previous(self) -> Word:
-        return self._previous
+        return self.previous
 
     def get_text(self) -> str:
         return self._text

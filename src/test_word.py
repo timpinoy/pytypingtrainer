@@ -5,8 +5,8 @@ class TestWord(unittest.TestCase):
     def test_next(self):
         n = Word("next")
         w = Word("word", None, next=n)
-        self.assertEqual(w._next, n)
-        self.assertEqual(w._next._text, n._text)
+        self.assertEqual(w.next, n)
+        self.assertEqual(w.next._text, n._text)
 
     def test_update_backspace_with_no_entry1(self):
         p = Word("prev")

@@ -1,5 +1,4 @@
 import pyray as pr
-import math
 from settings import *
 from typing import List
 from menumode import MenuMode
