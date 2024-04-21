@@ -1,7 +1,7 @@
 import pyray as pr
 
 WIN_WIDTH: int = 800
-WIN_HEIGHT: int = 600
+WIN_HEIGHT: int = 400
 TARGET_FPS: int = 60
 BG_COLOR = pr.LIGHTGRAY
 FONT_COLOR = pr.BLACK

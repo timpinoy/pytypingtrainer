@@ -11,15 +11,19 @@ class TypeMode():
         self.words: List[Word] = []
         self._word_list: WordList = self._load_word_list()
         self._active_word: Word = None
-        self.round_time: float = time
-        self.remaining_time: float = self.round_time
+        self._round_time: float = time
+        self._remaining_time: float = self._round_time
+        self._words_in_line: int = 5
+        self._num_lines: int = 3
+        self._current_draw_chunk: List[Word] = []
         self.reset()
+        self._update_draw_chunk()
 
     def update(self) -> None:
         if not self.is_time_up:
             self.delta_time = pr.get_frame_time()
-            self.remaining_time -= self.delta_time
-            if self.remaining_time < 0:
+            self._remaining_time -= self.delta_time
+            if self._remaining_time < 0:
             #self.remaining_time = self.round_time 
                 self.is_time_up = True
 
@@ -29,25 +33,38 @@ class TypeMode():
                     input_char = chr(int_char)
                     self._active_word = self._active_word.update(input_char)
                 int_char = pr.get_char_pressed()
+                self._update_draw_chunk()
 
             if pr.is_key_pressed(pr.KeyboardKey.KEY_BACKSPACE):
                 self._active_word = self._active_word.update("", is_backspace=True)
+                self._update_draw_chunk()
+
+    def _update_draw_chunk(self) -> None:
+        self._current_draw_chunk = []
+        current_index: int = self._active_word.order
+        if current_index <= self._words_in_line:
+            for i in range(self._num_lines * self._words_in_line):
+               self._current_draw_chunk.append(self.words[i]) 
+        else:
+            start_index: int = ((current_index // self._words_in_line) - 1) * self._words_in_line
+            for i in range(start_index, start_index + self._num_lines * self._words_in_line):
+                self._current_draw_chunk.append(self.words[i])
 
     def draw(self) -> None:
-        pr.draw_text(f"{math.ceil(self.remaining_time)}", 20, 80, FONT_SIZE, FONT_COLOR)
-        # centering text so need to calculate how wide the text line will be
-        #text_width: int = pr.measure_text(self._text, FONT_SIZE)
-        #text_start_pos = (WIN_WIDTH - text_width) // 2
-        #x_offset = text_start_pos
-        curr = self._active_word
-        x_offset = 20
-        while True:
-            curr.draw(x_offset, 200)
-            x_offset += pr.measure_text(curr.get_draw_text(), FONT_SIZE)
-            curr = curr.next
-            if curr is None:
-                break
-            x_offset += pr.measure_text(" ", FONT_SIZE) + CHAR_SPACING * 2
+        pr.draw_text(f"{math.ceil(self._remaining_time)}", 20, 80, FONT_SIZE, FONT_COLOR)
+        y_pos: int = 120
+        for i in range(self._num_lines):
+            start_index: int = i * self._words_in_line
+            text_width: int = pr.measure_text(
+                " ".join(i.get_draw_text() for i in self._current_draw_chunk[start_index:start_index+self._words_in_line]),
+                FONT_SIZE)
+            text_start_pos: int = (WIN_WIDTH - text_width) // 2
+            x_offset: int = text_start_pos
+            for j in range(self._words_in_line):
+                word: Word = self._current_draw_chunk[i*self._words_in_line + j]
+                word_width = pr.measure_text(word.get_draw_text() + " ", FONT_SIZE)
+                word.draw(x_offset, y_pos + i * 40)
+                x_offset += word_width
     
     def _load_word_list(self) -> WordList:
         filepath = os.path.abspath(os.path.join(
