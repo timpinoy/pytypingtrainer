@@ -1,6 +1,13 @@
 from __future__ import annotations
 from typing import List
+from enum import Enum
 from settings import *
+
+class WordDrawOption(Enum):
+    BASE = 1
+    CORRECT = 2
+    INCORRECT = 3
+    UNDERLINE = 4
 
 class Word:
     def __init__(self, text: str, order: int=None, previous: Word=None, next: Word=None) -> None:
@@ -30,6 +37,7 @@ class Word:
                 self.is_current = False
                 self.previous.is_current = True
                 self.previous._is_past_word = False
+                self.previous._update_draw_list()
                 return self.previous
             if len(self._entered_history) != 0:
                 self._entered_history.pop()
@@ -56,17 +64,17 @@ class Word:
         while i < len(self._entered_history):
             if i < self._len:
                 if self._entered_history[i] == self._characters[i]:
-                    self._draw_list.append((self._characters[i], True))
+                    self._draw_list.append((self._characters[i], WordDrawOption.CORRECT))
                 else:
-                    self._draw_list.append((self._characters[i], False))
+                    self._draw_list.append((self._characters[i], WordDrawOption.INCORRECT))
             else:
-                self._draw_list.append((self._entered_history[i], False))
+                self._draw_list.append((self._entered_history[i], WordDrawOption.INCORRECT))
             i += 1
         while i < len(self._characters):
             if self._is_past_word:
-                self._draw_list.append((self._characters[i], False))
+                self._draw_list.append((self._characters[i], WordDrawOption.UNDERLINE))
             else:
-                self._draw_list.append((self._characters[i], None))
+                self._draw_list.append((self._characters[i], WordDrawOption.BASE))
             i += 1
                 
     def draw(self, x: int, y: int) -> None:
@@ -79,10 +87,16 @@ class Word:
                 if i == len(self._entered_history):
                     pr.draw_rectangle(x_offset, y, current_char_width, 30, pr.PINK)
             color = FONT_COLOR
-            if self._draw_list[i][1] is not None and not self._draw_list[i][1]:
+            if self._draw_list[i][1] == WordDrawOption.INCORRECT:
                 color = pr.RED
-            elif self._draw_list[i][1]:
+            elif self._draw_list[i][1] == WordDrawOption.CORRECT:
                 color = pr.GREEN
+            elif self._draw_list[i][1] == WordDrawOption.UNDERLINE:
+                pr.draw_line(x_offset, 
+                             y + 34, 
+                             x_offset + current_char_width,
+                             y + 34,
+                             pr.RED)
             pr.draw_text(self._draw_list[i][0],
                         x_offset,
                         y,
