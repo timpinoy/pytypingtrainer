@@ -1,6 +1,6 @@
 import os
 import math
-from typing import List
+from typing import List, Dict
 from word import Word
 from wordlist import WordList
 from settings import *
@@ -16,7 +16,7 @@ class TypeMode():
         self._words_in_line: int = 5
         self._num_lines: int = 3
         self._current_draw_chunk: List[Word] = []
-        self.reset()
+        self._initialize_words()
         self._update_draw_chunk()
 
     def update(self) -> None:
@@ -74,7 +74,7 @@ class TypeMode():
             ))
         return WordList(filepath)
     
-    def reset(self) -> None:
+    def _initialize_words(self) -> None:
         self.words = []
         for i in range(400):
             if i == 0:
@@ -86,3 +86,30 @@ class TypeMode():
                                        self.words[i-1]))
                 self.words[i-1].next = self.words[i]
         self._active_word = self.words[0]
+    
+    def get_result(self) -> Dict:
+        res = {}
+        res["time"] = math.floor(self._round_time)
+        entered_characters = 0
+        accurate_count = 0
+        accurate_word_char_count = 0
+
+        cur: Word = self.words[0]
+        # adding 1 for spaces
+        while True:
+            if not (cur.is_current or cur.has_been_active) or cur is None:
+                break
+            if cur.is_current:
+                entered_characters += len(cur.full_entered_history)
+                accurate_count += cur.get_num_accurate_chars()
+            else:
+                entered_characters += len(cur.full_entered_history) + 1
+                accurate_count += cur.get_num_accurate_chars() + 1
+            if cur.is_accurate:
+                accurate_word_char_count += cur.len + 1
+            cur = cur.next
+        res["entered_count"] = entered_characters
+        res["wpm"] = accurate_word_char_count / 5 / self._round_time * 60
+        res["raw_wpm"] = entered_characters / 5 / self._round_time * 60
+        res["acc"] = accurate_count / entered_characters * 100
+        return res

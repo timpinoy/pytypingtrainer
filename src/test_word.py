@@ -32,7 +32,7 @@ class TestWord(unittest.TestCase):
         w.update("o")
         r = w.update("", is_backspace=True)
         self.assertEqual(w._entered_history, ["f", "o"])
-        self.assertEqual(w._full_entered_history, ["f", "o", "o"])
+        self.assertEqual(w.full_entered_history, ["f", "o", "o"])
 
     def test_update_space1(self):
         n = Word("next")
@@ -60,7 +60,7 @@ class TestWord(unittest.TestCase):
         w.update("a")
         w.update("a")
         self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._entered_history)
-        self.assertEqual(['a', 'a', 'a', 'a', 'a'], w._full_entered_history)
+        self.assertEqual(['a', 'a', 'a', 'a', 'a'], w.full_entered_history)
 
     def test_validate_true(self):
         w = Word("abc")

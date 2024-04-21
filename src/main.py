@@ -18,12 +18,15 @@ class App:
                 self._current_mode = TypeMode(self._current_mode.get_selected_time())
         elif isinstance(self._current_mode, TypeMode):
             if self._current_mode.is_time_up:
-                self._current_mode = ResultMode()
+                self._current_mode = ResultMode(self._current_mode.get_result())
+        elif isinstance(self._current_mode, ResultMode):
+            if self._current_mode.back_to_menu:
+                self._current_mode = MenuMode()
    
     def draw(self) -> None:
         pr.begin_drawing()
         pr.clear_background(BG_COLOR)
-        pr.draw_fps(10, 10)
+        #pr.draw_fps(10, 10)
         self._current_mode.draw()
         pr.end_drawing()
 

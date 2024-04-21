@@ -17,19 +17,19 @@ class Word:
         self.previous: Word = previous
         self.next: Word = next
         self._is_past_word: bool = False
-        self._has_been_active: bool = False
+        self.has_been_active: bool = False
         self._text: str = text
         self._characters: List[str] = list(self._text)
-        self._len: int = len(text)
+        self.len: int = len(text)
         self._entered_history: List[str] = []
-        self._full_entered_history: List[str] = []
+        self.full_entered_history: List[str] = []
         self._draw_list = []
         self._update_draw_list()
 
     def update(self, input: str, is_backspace: bool=False) -> Word:
         if not self.is_current:
             return
-        self._has_been_active = True
+        self.has_been_active = True
         if is_backspace:
             if self.previous is not None and len(self._entered_history) == 0:
                 if self.previous.is_accurate:
@@ -52,9 +52,9 @@ class Word:
                 self._update_draw_list()
                 return self.next
             return self
-        if len(self._entered_history) < self._len + 4:
+        if len(self._entered_history) < self.len + 4:
             self._entered_history.append(input)
-            self._full_entered_history.append(input)
+            self.full_entered_history.append(input)
         self._update_draw_list()
         return self
 
@@ -62,7 +62,7 @@ class Word:
         i: int = 0
         self._draw_list = []
         while i < len(self._entered_history):
-            if i < self._len:
+            if i < self.len:
                 if self._entered_history[i] == self._characters[i]:
                     self._draw_list.append((self._characters[i], WordDrawOption.CORRECT))
                 else:
@@ -105,13 +105,13 @@ class Word:
             x_offset += current_char_width + CHAR_SPACING
         # draw cursor for space
         if self.is_current:
-            if len(self._entered_history) >= self._len:
+            if len(self._entered_history) >= self.len:
                 pr.draw_rectangle(x_offset, y, 10, 30, pr.PINK)
 
     def _validate(self) -> None:
         self.is_accurate = False
-        if len(self._entered_history) == self._len:
-            for i in range(self._len):
+        if len(self._entered_history) == self.len:
+            for i in range(self.len):
                 if self._characters[i] != self._entered_history[i]:
                     return
             self.is_accurate = True
@@ -124,3 +124,17 @@ class Word:
         for i in self._draw_list:
             s = s + i[0]
         return s
+        
+    def get_num_accurate_chars(self) -> int:
+        if self.is_accurate:
+            return self.len
+        
+        i = 0
+        accurate_count = 0
+        while i < len(self._entered_history):
+            if i == self.len:
+                break
+            if self._entered_history[i] != self._characters[i]:
+                accurate_count += 1
+            i += 1
+        return accurate_count
